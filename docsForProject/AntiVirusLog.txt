@@ -1,0 +1,21 @@
+Anti-virus began! Welcome!
+
+Folder to scan:
+E:/Magshimim/C1/week8/lesson/docsForProject
+Virus signature:
+E:/Magshimim/C1/week8/lesson/docsForProject/KittenVirusSign
+
+Scanning option:
+Quick Scan
+
+Results:
+E:/Magshimim/C1/week8/lesson/docsForProject/AntiVirusLog.txt  Clean
+E:/Magshimim/C1/week8/lesson/docsForProject/KittenVirusSign  Infected!
+E:/Magshimim/C1/week8/lesson/docsForProject/LogExample.txt  Clean
+E:/Magshimim/C1/week8/lesson/docsForProject/LogExampleQuick.txt  Clean
+E:/Magshimim/C1/week8/lesson/docsForProject/abd.txt  Clean
+E:/Magshimim/C1/week8/lesson/docsForProject/bbc.txt  Clean
+E:/Magshimim/C1/week8/lesson/docsForProject/kittenWord.docx  Infected! (last 20%)
+E:/Magshimim/C1/week8/lesson/docsForProject/kitten_frog.jpg  Infected! (last 20%)
+E:/Magshimim/C1/week8/lesson/docsForProject/kitten_frog2.jpg  Infected! (last 20%)
+E:/Magshimim/C1/week8/lesson/docsForProject/kitten_run.jpg  Clean
