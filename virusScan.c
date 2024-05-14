@@ -14,8 +14,8 @@
 
 #define ONE 1
 
-#define SLASH "/"
-#define LENOFLOGPATH 18
+#define SLASH "\\"
+#define LOGNAME "\\AntiVirusLog.txt"
 
 #define INFECTED 1
 #define INFECTEDFIRSTPART 2
@@ -60,7 +60,6 @@ int main(int argc, char** argv)
     char* virusString = NULL;
     char* fileString = NULL;
     char scanningOption[STR_LEN] = {0};
-    int i = 0;
     int lenOfFile = 0;
     int lenOfVirus = 0;
     validExecution(argc, argv);
@@ -70,7 +69,7 @@ int main(int argc, char** argv)
     virusString = fileToString(argv[FILELOC], &lenOfVirus);
     if(!strcmp(scanningOption, FULLSCAN))
     {
-        for (i = 0; i < folder.amountOfFiles; i++)
+        for (int i = 0; i < folder.amountOfFiles; i++)
         {
             fileString = fileToString(folder.files[i]->path, &lenOfFile);
             folder.files[i]->infectedFlag = scan(virusString, lenOfVirus, fileString, lenOfFile); //scanning and puting the result to the flag
@@ -80,7 +79,7 @@ int main(int argc, char** argv)
     }
     else
     {
-        for (i = 0; i < folder.amountOfFiles; i++)
+        for (int i = 0; i < folder.amountOfFiles; i++)
         {
             fileString = fileToString(folder.files[i]->path, &lenOfFile);
             folder.files[i]->infectedFlag = quickScan(virusString, lenOfVirus, fileString, lenOfFile); //scanning and puting the result to the flag
@@ -192,8 +191,6 @@ Output: none
     char** paths = NULL;
     char* temp = NULL;
     int amountOfFiles = 0;
-    int i = 0;
-    int j = 0;
     d = opendir(argv[DIRLOC]);
     //sets all the file names into the paths array
     while ((dir = readdir(d)) != NULL)
@@ -203,27 +200,24 @@ Output: none
             amountOfFiles++;
             paths = (char**)realloc(paths, amountOfFiles * sizeof(char*));
             checkAllocation(paths);
-            paths[amountOfFiles - ONE] = (char*)malloc(sizeof(char) * ((strlen(dir->d_name) + ONE)));
-            checkAllocation(paths);
-            strcpy(paths[amountOfFiles - ONE], dir->d_name);
+            paths[amountOfFiles - ONE] = (char*)malloc(sizeof(char) * (strlen(dir->d_name) + strlen(SLASH) + strlen(argv[DIRLOC]) + ONE));
+            checkAllocation(paths[amountOfFiles - ONE]);
+            strcpy(paths[amountOfFiles - ONE], argv[DIRLOC]);
+            strcat(paths[amountOfFiles - ONE], SLASH);
+            strcat(paths[amountOfFiles - ONE], dir->d_name);
         }
     }
     //sorting the paths array
     bubbleSort(paths, amountOfFiles);
-    for(i = 0; i<amountOfFiles; i++)
+    folder->amountOfFiles = amountOfFiles;
+    folder->files = (File**)malloc(folder->amountOfFiles * sizeof(File*));
+    checkAllocation(folder->files);
+    for(int i = 0; i < amountOfFiles; i++)
     {
-        folder->amountOfFiles++;
-        folder->files = (File**)realloc(folder->files, folder->amountOfFiles * sizeof(File*));
-        checkAllocation(folder->files);
-        folder->files[folder->amountOfFiles - ONE] = (File*)malloc(sizeof(File));
-        checkAllocation(folder->files[folder->amountOfFiles - ONE]);
-        folder->files[folder->amountOfFiles - ONE]->infectedFlag = FALSE;
-        folder->files[folder->amountOfFiles - ONE]->path = (char*)malloc(sizeof(char) * (strlen(argv[DIRLOC]) + ONE + strlen(argv[FILELOC] + ONE) + strlen(SLASH) + ONE));
-        checkAllocation(folder->files[folder->amountOfFiles - ONE]->path);
-        strcpy(folder->files[folder->amountOfFiles - ONE]->path, argv[DIRLOC]);
-        strncat(folder->files[folder->amountOfFiles - ONE]->path, SLASH, strlen(SLASH) + ONE);
-        strncat(folder->files[folder->amountOfFiles - ONE]->path, paths[i], strlen(paths[i]) + ONE); //sets the name to the file
-        free(paths[i]); //free the paths array string
+        folder->files[i] = (File*)malloc(sizeof(File));
+        checkAllocation(folder->files[i]);
+        folder->files[i]->infectedFlag = FALSE;
+        folder->files[i]->path = paths[i];
     }
     free(paths); //free the paths array
     closedir(d);
@@ -276,24 +270,19 @@ Output: none
 {
     FILE* file = NULL;
     char* logFilePath = NULL;
-    int i = 0;
-    logFilePath = (char*)malloc(sizeof(char) * (strlen(argv[DIRLOC]) + LENOFLOGPATH));
+    logFilePath = (char*)malloc(sizeof(char) * (strlen(argv[DIRLOC]) + strlen(LOGNAME)));
     checkAllocation(logFilePath);
     strcpy(logFilePath, argv[DIRLOC]);
-    strncat(logFilePath, "/AntiVirusLog.txt", LENOFLOGPATH);
+    strcat(logFilePath, LOGNAME);
     file = fopen(logFilePath, "w");
     fileChecker(logFilePath);
     fprintf(file, "Anti-virus began! Welcome!\n\nFolder to scan:\n%s\nVirus signature:\n%s\n\nScanning option:\n", argv[DIRLOC], argv[FILELOC]);
     if(!strcmp(scanningOption, FULLSCAN))
-    {
         fprintf(file, "Normal Scan\n\n");
-    }
     else
-    {
         fprintf(file, "Quick Scan\n\n");
-    }
     fprintf(file, "Results:\n");
-    for(i = 0; i < folder->amountOfFiles; i++)
+    for(int i = 0; i < folder->amountOfFiles; i++)
     {
         //prints the path to the file
         fprintf(file, "%s  ", folder->files[i]->path);
@@ -301,17 +290,17 @@ Output: none
         switch(folder->files[i]->infectedFlag)
         {
             case(CLEAR):
-            fprintf(file, "Clean\n");
-            break;
+                fprintf(file, "Clean\n");
+                break;
             case(INFECTED):
-            fprintf(file, "Infected!\n");
-            break;
+                fprintf(file, "Infected!\n");
+                break;
             case(INFECTEDFIRSTPART):
-            fprintf(file, "Infected! (first 20%%)\n");
-            break;
+                fprintf(file, "Infected! (first 20%%)\n");
+                break;
             case(INFECTEDLASTPART):
-            fprintf(file, "Infected! (last 20%%)\n");
-            break;
+                fprintf(file, "Infected! (last 20%%)\n");
+                break;
         }
     }
     free(logFilePath);
@@ -331,17 +320,17 @@ Output: none
     switch(file->infectedFlag)
     {
         case(CLEAR):
-        printf("Clean\n");
-        break;
+            printf("Clean\n");
+            break;
         case(INFECTED):
-        printf("Infected!\n");
-        break;
+            printf("Infected!\n");
+            break;
         case(INFECTEDFIRSTPART):
-        printf("Infected! (first 20%%)\n");
-        break;
+            printf("Infected! (first 20%%)\n");
+            break;
         case(INFECTEDLASTPART):
-        printf("Infected! (last 20%%)\n");
-        break;
+            printf("Infected! (last 20%%)\n");
+            break;
     }
 }
 
@@ -355,27 +344,23 @@ Output: flag if the virus found or not
     int fileCounter = 0;
     int virusCounter = 0;
     int infectedFlag = 0;
-    while(fileCounter < lenOfFile + 1 && infectedFlag == FALSE)
+    while(fileCounter - virusCounter <= lenOfFile - lenOfVirus && infectedFlag == FALSE)
     {
         if(*(virusString + virusCounter) == *(fileString + fileCounter))
-        {
             virusCounter++;
-        }
+
         else
-        {
             virusCounter = 0;
-        }
+
         if(virusCounter == lenOfVirus)
-        {
             infectedFlag = INFECTED;
-        }
+
         fileCounter++;
     }
     return infectedFlag;
 }
 
 int quickScan(char* virusString, int lenOfVirus, char* fileString, int lenOfFile)
-
 /*
 This function preforms a quick scan, first it sends the pointer to the beggining of the file and the len until the 20 percent
 of the file than it sends the pointer to the 80 percent of the file and scans until the end of the file and if both of them didnt
@@ -385,18 +370,16 @@ Output: the flag that tells if the virus found and where
 */
 {
     int infectedFlag = 0;
+    
     if(scan(virusString, lenOfVirus, fileString, lenOfFile / TWENTYPERCENT))
-    {
         infectedFlag = INFECTEDFIRSTPART;
-    }
+    
     else if(scan(virusString, lenOfVirus, fileString + lenOfFile / TWENTYPERCENT * EIGHTYPERCENT, lenOfFile / TWENTYPERCENT))
-    {
         infectedFlag = INFECTEDLASTPART;
-    }
+    
     else if(scan(virusString, lenOfVirus, fileString, lenOfFile))
-    {
         infectedFlag = INFECTED;
-    }
+    
     return infectedFlag;
 }
 
@@ -407,13 +390,11 @@ Input: char** of array of strings and the len of it
 Output: none
 */
 {
-    int i = 0;
-    int j = 0;
     char* temp = NULL;
-    for (i = 0; i < n - ONE; i++)     
+    for (int i = 0; i < n - ONE; i++)     
     { 
         // Last i elements are already in place   
-        for (j = 0; j < n - i - ONE; j++) 
+        for (int j = 0; j < n - i - ONE; j++) 
         {
             if (strcmp(arr[j], arr[j + ONE]) > 0)
             {
