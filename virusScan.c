@@ -10,7 +10,7 @@
 #define VIRUSLOC 2
 #define TOTALARGC 3
 
-#define FULLSCAN "0"
+#define FULLSCAN '0'
 
 #define ONE 1
 
@@ -43,32 +43,31 @@ void dirChecker(char* path);
 void fileChecker(char* path);
 void validExecution(int argc, char** argv);
 void checkAllocation(void* ptr);
-void menu(char** argv, char scanningOption[]);
+char menu(char** argv);
 void folderOpener(Folder* folder, char** argv);
 void freeFolder(Folder* folder);
 char* fileToString(char* path, int* fileLen);
 void resultPrinter(File* file);
-void logFilePrinter(char** argv, Folder* folder, char scanningOption[]);
+void logFilePrinter(char** argv, Folder* folder, char scanningOption);
 int regularFileScan(char* virus, int virusLen, char* fileString, int fileLen);
 int quickFileScan(char* virus, int virusLen, char* fileString, int fileLen);
 void dirScan(Folder* folder, char* virus, int virusLen, int (*scanType)(char*, int, char*, int));
 void bubbleSort(char** arr, int n);
-void myFgets(char* str);
 
 int main(int argc, char** argv)
 {
     Folder folder = { NULL, 0 };
     char* virus = NULL;
     char* fileString = NULL;
-    char scanningOption[STR_LEN] = {0};
+    char scanningOption = ' ';
     int fileLen = 0;
     int virusLen = 0;
     validExecution(argc, argv);
     folderOpener(&folder, argv);
-    menu(argv, scanningOption);
+    scanningOption = menu(argv);
     printf("Chosen mode: ");
     virus = fileToString(argv[VIRUSLOC], &virusLen);
-    if(!strcmp(scanningOption, FULLSCAN))
+    if(scanningOption == FULLSCAN)
     {
         printf("regular scan\n");
         dirScan(&folder, virus, virusLen, regularFileScan);
@@ -140,7 +139,7 @@ Output: none
     fileChecker(argv[VIRUSLOC]); //checks if the third arg is not a path to a file
 }
 
-void menu(char** argv, char scanningOption[])
+char menu(char** argv)
 /*
 This function prints the menu and return the option that the user chose
 Input: argv to print the paths
@@ -152,7 +151,7 @@ Output: char that represent the choice
     printf("Folder to scan:\n%s\n", argv[DIRLOC]);
     printf("Virus signature:\n%s\n", argv[VIRUSLOC]);
     printf("Press 0 for a normal scan or any other key for a quick scan: ");
-    myFgets(scanningOption);
+    return getchar();
 }
 
 void checkAllocation(void* ptr)
@@ -252,7 +251,7 @@ Output: none
     free(folder->files);
 }
 
-void logFilePrinter(char** argv, Folder* folder, char scanningOption[])
+void logFilePrinter(char** argv, Folder* folder, char scanningOption)
 /*
 Prints to the file the result of the scan
 Input: argv, pointer to folder, the scanningOption
@@ -268,7 +267,7 @@ Output: none
     file = fopen(logFilePath, "w");
     fileChecker(logFilePath);
     fprintf(file, "Anti-virus Log\n\nFolder to scan:\n%s\nVirus signature:\n%s\n\nScanning option:\n", argv[DIRLOC], argv[VIRUSLOC]);
-    if(!strcmp(scanningOption, FULLSCAN))
+    if(scanningOption == FULLSCAN)
         fprintf(file, "Normal Scan\n\n");
     else
         fprintf(file, "Quick Scan\n\n");
@@ -413,15 +412,4 @@ Output: none
             }
         }
     }
-}
-
-void myFgets(char* str)
-/*
-* This function will get a string and put it in an array
-* Input: the string that we want to put it in and the length of the string
-* Output: None
-*/
-{
-    fgets(str, STR_LEN, stdin);
-    str[strcspn(str, "\n")] = 0;
 }
