@@ -45,10 +45,10 @@ void validExecution(int argc, char** argv);
 void checkAllocation(void* ptr);
 char menu(char** argv);
 void folderOpener(Folder* folder, char** argv);
-void freeFolder(Folder* folder);
+void folderCloser(Folder* folder);
 char* fileToString(char* path, int* fileLen);
 void resultPrinter(File* file);
-void logFilePrinter(char** argv, Folder* folder, char scanningOption);
+void logFileCreator(char** argv, Folder* folder, char scanningOption);
 int regularFileScan(char* virus, int virusLen, char* fileString, int fileLen);
 int quickFileScan(char* virus, int virusLen, char* fileString, int fileLen);
 void dirScan(Folder* folder, char* virus, int virusLen, int (*scanType)(char*, int, char*, int));
@@ -77,9 +77,9 @@ int main(int argc, char** argv)
         dirScan(&folder, virus, virusLen, quickFileScan);
     }
     printf("Scan Completed.\nSee log file for results at: %s\\AntiVirusLog.txt\n", argv[DIRLOC]);
-    logFilePrinter(argv, &folder, scanningOption);
+    logFileCreator(argv, &folder, scanningOption);
     free(virus);
-    freeFolder(&folder);
+    folderCloser(&folder);
     getchar();
     return EXIT_SUCCESS;
 }
@@ -232,7 +232,7 @@ Output: pointer to what the file containes
     return fileString;
 }
 
-void freeFolder(Folder* folder)
+void folderCloser(Folder* folder)
 /*
 Free all the memory allocated to the folder
 Input: pointer to a folder
@@ -248,7 +248,7 @@ Output: none
     free(folder->files);
 }
 
-void logFilePrinter(char** argv, Folder* folder, char scanningOption)
+void logFileCreator(char** argv, Folder* folder, char scanningOption)
 /*
 Prints to the file the result of the scan
 Input: argv, pointer to folder, the scanningOption

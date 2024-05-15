@@ -9,8 +9,6 @@ Scanning option:
 Quick Scan
 
 Results:
-C:\Users\alons\Documents\dev\AntiVirusKitten\docsForProject\abcd.txt - Clean
-C:\Users\alons\Documents\dev\AntiVirusKitten\docsForProject\abd.txt - Clean
 C:\Users\alons\Documents\dev\AntiVirusKitten\docsForProject\AntiVirusLog.txt - Clean
 C:\Users\alons\Documents\dev\AntiVirusKitten\docsForProject\first20.docx - Infected! (first 20%)
 C:\Users\alons\Documents\dev\AntiVirusKitten\docsForProject\KittenVirusSign - Infected!
