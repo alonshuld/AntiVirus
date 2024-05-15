@@ -92,7 +92,6 @@ Output: none
 */
 {
     DIR* d = NULL;
-    struct dirent* dir = NULL;
     d = opendir(path);
     if (d == NULL) //if cant open dir
     {
