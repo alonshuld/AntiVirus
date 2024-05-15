@@ -1,17 +1,17 @@
-Anti-virus began! Welcome!
+Anti-virus Log
 
-Folder to scan: 
+Folder to scan:
 C:\Users\alons\Documents\dev\AntiVirusKitten\docsForProject
-Virus signature: 
+Virus signature:
 C:\Users\alons\Documents\dev\AntiVirusKitten\docsForProject\KittenVirusSign
 
 Scanning option:
-Normal Scan
+Quick Scan
 
 Results:
-C:\Users\alons\Documents\dev\AntiVirusKitten\docsForProject\AntiVirusLog.txt  Clean
-C:\Users\alons\Documents\dev\AntiVirusKitten\docsForProject\KittenVirusSign  Infected!
-C:\Users\alons\Documents\dev\AntiVirusKitten\docsForProject\first20.docx  Infected!
-C:\Users\alons\Documents\dev\AntiVirusKitten\docsForProject\last20.docx  Infected!
-C:\Users\alons\Documents\dev\AntiVirusKitten\docsForProject\middle.docx  Infected!
-C:\Users\alons\Documents\dev\AntiVirusKitten\docsForProject\regular.docx  Clean
+C:\Users\alons\Documents\dev\AntiVirusKitten\docsForProject\AntiVirusLog.txt - Clean
+C:\Users\alons\Documents\dev\AntiVirusKitten\docsForProject\KittenVirusSign - Infected!
+C:\Users\alons\Documents\dev\AntiVirusKitten\docsForProject\first20.docx - Infected! (first 20%)
+C:\Users\alons\Documents\dev\AntiVirusKitten\docsForProject\last20.docx - Infected! (last 20%)
+C:\Users\alons\Documents\dev\AntiVirusKitten\docsForProject\middle.docx - Infected!
+C:\Users\alons\Documents\dev\AntiVirusKitten\docsForProject\regular.docx - Clean

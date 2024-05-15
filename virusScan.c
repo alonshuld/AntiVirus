@@ -7,7 +7,7 @@
 #define TRUE !FALSE
 
 #define DIRLOC 1
-#define FILELOC 2
+#define VIRUSLOC 2
 #define TOTALARGC 3
 
 #define FULLSCAN "0"
@@ -46,50 +46,41 @@ void checkAllocation(void* ptr);
 void menu(char** argv, char scanningOption[]);
 void folderOpener(Folder* folder, char** argv);
 void freeFolder(Folder* folder);
-char* fileToString(char* path, int* lenOfFile);
+char* fileToString(char* path, int* fileLen);
 void resultPrinter(File* file);
 void logFilePrinter(char** argv, Folder* folder, char scanningOption[]);
-int scan(char* virusString, int lenOfVirus, char* fileString, int lenOfFile);
-int quickScan(char* virusString, int lenOfVirus, char* fileString, int lenOfFile);
+int regularFileScan(char* virus, int virusLen, char* fileString, int fileLen);
+int quickFileScan(char* virus, int virusLen, char* fileString, int fileLen);
+void dirScan(Folder* folder, char* virus, int virusLen, int (*scanType)(char*, int, char*, int));
 void bubbleSort(char** arr, int n);
 void myFgets(char* str);
 
 int main(int argc, char** argv)
 {
     Folder folder = { NULL, 0 };
-    char* virusString = NULL;
+    char* virus = NULL;
     char* fileString = NULL;
     char scanningOption[STR_LEN] = {0};
-    int lenOfFile = 0;
-    int lenOfVirus = 0;
+    int fileLen = 0;
+    int virusLen = 0;
     validExecution(argc, argv);
     folderOpener(&folder, argv);
     menu(argv, scanningOption);
-    printf("Scanning began...\nThis process may take several minutes...\n\nScanning:\n");
-    virusString = fileToString(argv[FILELOC], &lenOfVirus);
+    printf("Chosen mode: ");
+    virus = fileToString(argv[VIRUSLOC], &virusLen);
     if(!strcmp(scanningOption, FULLSCAN))
     {
-        for (int i = 0; i < folder.amountOfFiles; i++)
-        {
-            fileString = fileToString(folder.files[i]->path, &lenOfFile);
-            folder.files[i]->infectedFlag = scan(virusString, lenOfVirus, fileString, lenOfFile); //scanning and puting the result to the flag
-            free(fileString);
-            resultPrinter(folder.files[i]);
-        }
+        printf("regular scan\n");
+        dirScan(&folder, virus, virusLen, regularFileScan);
     }
     else
     {
-        for (int i = 0; i < folder.amountOfFiles; i++)
-        {
-            fileString = fileToString(folder.files[i]->path, &lenOfFile);
-            folder.files[i]->infectedFlag = quickScan(virusString, lenOfVirus, fileString, lenOfFile); //scanning and puting the result to the flag
-            free(fileString);
-            resultPrinter(folder.files[i]);
-        }
+        printf("quick scan\n");
+        dirScan(&folder, virus, virusLen, quickFileScan);
     }
-    printf("Scan Completed.\nSee log path for results: %s/AntiVirusLog.txt\n", argv[DIRLOC]);
+    printf("Scan Completed.\nSee log file for results at: %s\\AntiVirusLog.txt\n", argv[DIRLOC]);
     logFilePrinter(argv, &folder, scanningOption);
-    free(virusString);
+    free(virus);
     freeFolder(&folder);
     getchar();
     return EXIT_SUCCESS;
@@ -146,7 +137,7 @@ Output: none
         exit(EXIT_FAILURE);
     }
     dirChecker(argv[DIRLOC]); //checks if the second arg is not a path to a dir
-    fileChecker(argv[FILELOC]); //checks if the third arg is not a path to a file
+    fileChecker(argv[VIRUSLOC]); //checks if the third arg is not a path to a file
 }
 
 void menu(char** argv, char scanningOption[])
@@ -157,9 +148,9 @@ Output: char that represent the choice
 */
 {
     //prints the menu
-    printf("Welcome to my Virus Scan!\n\n");
-    printf("Folder to scan: %s\n", argv[DIRLOC]);
-    printf("Virus signature: %s\n", argv[FILELOC]);
+    printf("Welcome to Alon's Virus Scan!\n\n");
+    printf("Folder to scan:\n%s\n", argv[DIRLOC]);
+    printf("Virus signature:\n%s\n", argv[VIRUSLOC]);
     printf("Press 0 for a normal scan or any other key for a quick scan: ");
     myFgets(scanningOption);
 }
@@ -223,7 +214,7 @@ Output: none
     closedir(d);
 }
 
-char* fileToString(char* path, int* lenOfFile)
+char* fileToString(char* path, int* fileLen)
 /*
 This function return a pointer to a string that contains what is in a file
 Input: path to a file and pointer to int that will hold the length of the file
@@ -236,11 +227,11 @@ Output: pointer to what the file containes
     file = fopen(path, "rb");
     fileChecker(path);
     fseek(file, 0, SEEK_END);
-    *lenOfFile = ftell(file);
-    fileString = (char*)malloc(sizeof(char) * (*lenOfFile + ONE));
+    *fileLen = ftell(file);
+    fileString = (char*)malloc(sizeof(char) * (*fileLen + ONE));
     checkAllocation(fileString);
     rewind(file);
-    fread(fileString, *lenOfFile + ONE, ONE, file);
+    fread(fileString, *fileLen + ONE, ONE, file);
     fclose(file);
     return fileString;
 }
@@ -276,7 +267,7 @@ Output: none
     strcat(logFilePath, LOGNAME);
     file = fopen(logFilePath, "w");
     fileChecker(logFilePath);
-    fprintf(file, "Anti-virus began! Welcome!\n\nFolder to scan:\n%s\nVirus signature:\n%s\n\nScanning option:\n", argv[DIRLOC], argv[FILELOC]);
+    fprintf(file, "Anti-virus Log\n\nFolder to scan:\n%s\nVirus signature:\n%s\n\nScanning option:\n", argv[DIRLOC], argv[VIRUSLOC]);
     if(!strcmp(scanningOption, FULLSCAN))
         fprintf(file, "Normal Scan\n\n");
     else
@@ -285,7 +276,7 @@ Output: none
     for(int i = 0; i < folder->amountOfFiles; i++)
     {
         //prints the path to the file
-        fprintf(file, "%s  ", folder->files[i]->path);
+        fprintf(file, "%s - ", folder->files[i]->path);
         //prints to the file if the file infected
         switch(folder->files[i]->infectedFlag)
         {
@@ -334,9 +325,9 @@ Output: none
     }
 }
 
-int scan(char* virusString, int lenOfVirus, char* fileString, int lenOfFile)
+int regularFileScan(char* virus, int virusLen, char* fileString, int fileLen)
 /*
-This function preforms a scan on fileString and tries to find if virusString is in fileString
+This function preforms a scan on fileString and tries to find if virus is in fileString
 Input: string of the virus and the len of it and string of the file and the len of it
 Output: flag if the virus found or not
 */
@@ -344,15 +335,15 @@ Output: flag if the virus found or not
     int fileCounter = 0;
     int virusCounter = 0;
     int infectedFlag = 0;
-    while(fileCounter - virusCounter <= lenOfFile - lenOfVirus && infectedFlag == FALSE)
+    while(fileCounter - virusCounter <= fileLen - virusLen && infectedFlag == FALSE)
     {
-        if(*(virusString + virusCounter) == *(fileString + fileCounter))
+        if(*(virus + virusCounter) == *(fileString + fileCounter))
             virusCounter++;
 
         else
             virusCounter = 0;
 
-        if(virusCounter == lenOfVirus)
+        if(virusCounter == virusLen)
             infectedFlag = INFECTED;
 
         fileCounter++;
@@ -360,7 +351,7 @@ Output: flag if the virus found or not
     return infectedFlag;
 }
 
-int quickScan(char* virusString, int lenOfVirus, char* fileString, int lenOfFile)
+int quickFileScan(char* virus, int virusLen, char* fileString, int fileLen)
 /*
 This function preforms a quick scan, first it sends the pointer to the beggining of the file and the len until the 20 percent
 of the file than it sends the pointer to the 80 percent of the file and scans until the end of the file and if both of them didnt
@@ -370,17 +361,35 @@ Output: the flag that tells if the virus found and where
 */
 {
     int infectedFlag = 0;
-    
-    if(scan(virusString, lenOfVirus, fileString, lenOfFile / TWENTYPERCENT))
+    // Scan the first 20% of the file
+    if(regularFileScan(virus, virusLen, fileString, fileLen / TWENTYPERCENT))
         infectedFlag = INFECTEDFIRSTPART;
-    
-    else if(scan(virusString, lenOfVirus, fileString + lenOfFile / TWENTYPERCENT * EIGHTYPERCENT, lenOfFile / TWENTYPERCENT))
+    // Scan the last 20% of the file
+    else if(regularFileScan(virus, virusLen, fileString + fileLen / TWENTYPERCENT * EIGHTYPERCENT, fileLen / TWENTYPERCENT))
         infectedFlag = INFECTEDLASTPART;
-    
-    else if(scan(virusString, lenOfVirus, fileString, lenOfFile))
+    // Scan the file Regularly
+    else if(regularFileScan(virus, virusLen, fileString, fileLen))
         infectedFlag = INFECTED;
     
     return infectedFlag;
+}
+
+void dirScan(Folder *folder, char *virus, int virusLen, int (*scanType)(char *, int, char *, int))
+/*
+This function loops through each file in the folder and scans it with the scan chosen\
+Input: folder, virus, the len of the virus, the function of the chosen scan
+Output: None
+*/
+{
+    char* fileString = NULL;
+    int fileLen = 0;
+    for(int i = 0; i < folder->amountOfFiles; i++)
+    {
+        fileString = fileToString(folder->files[i]->path, &fileLen);
+        folder->files[i]->infectedFlag = scanType(virus, virusLen, fileString, fileLen); //scanning and puting the result to the flag
+        free(fileString);
+        resultPrinter(folder->files[i]);
+    }
 }
 
 void bubbleSort(char** arr, int n)
