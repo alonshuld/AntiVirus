@@ -52,7 +52,6 @@ void logFilePrinter(char** argv, Folder* folder, char scanningOption);
 int regularFileScan(char* virus, int virusLen, char* fileString, int fileLen);
 int quickFileScan(char* virus, int virusLen, char* fileString, int fileLen);
 void dirScan(Folder* folder, char* virus, int virusLen, int (*scanType)(char*, int, char*, int));
-void bubbleSort(char** arr, int n);
 
 int main(int argc, char** argv)
 {
@@ -197,8 +196,6 @@ Output: none
             strcat(paths[amountOfFiles - ONE], dir->d_name);
         }
     }
-    //sorting the paths array
-    bubbleSort(paths, amountOfFiles);
     folder->amountOfFiles = amountOfFiles;
     folder->files = (File**)malloc(folder->amountOfFiles * sizeof(File*));
     checkAllocation(folder->files);
@@ -388,28 +385,5 @@ Output: None
         folder->files[i]->infectedFlag = scanType(virus, virusLen, fileString, fileLen); //scanning and puting the result to the flag
         free(fileString);
         resultPrinter(folder->files[i]);
-    }
-}
-
-void bubbleSort(char** arr, int n)
-/*
-Sorting array of strings
-Input: char** of array of strings and the len of it
-Output: none
-*/
-{
-    char* temp = NULL;
-    for (int i = 0; i < n - ONE; i++)     
-    { 
-        // Last i elements are already in place   
-        for (int j = 0; j < n - i - ONE; j++) 
-        {
-            if (strcmp(arr[j], arr[j + ONE]) > 0)
-            {
-                temp = arr[j];
-                arr[j] = arr[j + ONE];
-                arr[j + ONE] = temp;
-            }
-        }
     }
 }
